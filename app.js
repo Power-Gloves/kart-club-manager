@@ -159,6 +159,11 @@ function buildBottomNav() {
 
 // ── SETUP PAGE ──
 function buildSetupPage() {
+  // 首次进入 · 无任何数据时展示引导页
+  if (S.carPool.length === 0 && S.drivers.length === 0) {
+    return buildOnboarding();
+  }
+
   const steps = [
     {key:'carPool',  label:'车号池'},
     {key:'reg',      label:'报名'},
@@ -171,19 +176,56 @@ function buildSetupPage() {
       ).join('')}
     </div>`;
 
-  // 演示入口：无数据时显示
-  const demoBtn = (S.carPool.length===0 && S.drivers.length===0) ? `
-    <div style="margin:12px 0 0;padding:12px;background:rgba(46,196,182,0.08);border:1px solid rgba(46,196,182,0.25);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div style="font-size:13px;color:var(--text2)">📋 3月28日报名数据（18人）</div>
-      <button class="btn btn-ghost" style="border-color:var(--teal);color:var(--teal);white-space:nowrap" onclick="loadDemoData()">一键加载</button>
-    </div>` : '';
-
   let content = '';
   if (S.setupStep === 'carPool')  content = buildCarPool();
   if (S.setupStep === 'reg')      content = buildRegistration();
   if (S.setupStep === 'grouping') content = buildGrouping();
-  return stepBar + `<div class="main fade-in">${demoBtn}${content}</div>`;
+  return stepBar + `<div class="main fade-in">${content}</div>`;
 }
+
+// 引导欢迎页
+function buildOnboarding() {
+  const steps = [
+    {icon:'🚗', title:'建立车号池', desc:'录入本场可用车辆编号'},
+    {icon:'📝', title:'车手报名',   desc:'填写姓名，系统随机分组抽车'},
+    {icon:'🎲', title:'随机分组',   desc:'自动均分 A/B 组 + 随机抽车'},
+    {icon:'⏱', title:'排位赛',     desc:'最快圈决定预赛发车顺序（不计分）'},
+    {icon:'🏁', title:'预赛 × 2轮', desc:'A组/B组各跑两轮，首尾换车保公平'},
+    {icon:'🏆', title:'决赛',       desc:'各组取 3-5 人，共 6-10 人冲刺决赛'},
+  ];
+  return `
+    <div style="padding:16px 4px 0">
+      <div style="text-align:center;padding:20px 0 16px">
+        <div style="font-size:52px;margin-bottom:10px">🏎️</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--gold);letter-spacing:1px">KART CLUB MANAGER</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:4px">卡丁车俱乐部 · 赛事计分系统</div>
+      </div>
+
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title" style="font-size:14px;margin-bottom:12px">📋 比赛流程</div>
+        ${steps.map((s,i) => `
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;${i<steps.length-1?'border-bottom:1px solid var(--border)':''}">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${s.icon}</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">${s.title}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <div class="info-box teal" style="margin-bottom:12px">
+        💡 <strong>建议先用演示数据体验一遍</strong>，了解完整流程后再正式开赛
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="loadDemoData()" style="margin-bottom:10px;font-size:16px;padding:16px">
+        🎮 加载演示数据，立刻体验
+      </button>
+      <button class="btn btn-secondary btn-full" onclick="goSetup('carPool')" style="font-size:14px">
+        ✏️ 手动录入，开始新赛事
+      </button>
+    </div>`;
+}
+
 
 // Car Pool
 function buildCarPool() {
