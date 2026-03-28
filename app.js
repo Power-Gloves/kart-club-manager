@@ -23,7 +23,8 @@ function freshState() {
     finalistCountA: 5, finalistCountB: 4,
     finalOrder: [],   // decided order for final start
     finalResults: [], // actual finishing order
-    raceDate: dateStr()
+    raceDate: dateStr(),
+    onboardingDone: false  // 是否已跳过引导页
   };
 }
 
@@ -159,8 +160,8 @@ function buildBottomNav() {
 
 // ── SETUP PAGE ──
 function buildSetupPage() {
-  // 首次进入 · 无任何数据时展示引导页
-  if (S.carPool.length === 0 && S.drivers.length === 0) {
+  // 首次进入 · 无任何数据且未跳过引导时展示引导页
+  if (S.carPool.length === 0 && S.drivers.length === 0 && !S.onboardingDone) {
     return buildOnboarding();
   }
 
@@ -220,7 +221,7 @@ function buildOnboarding() {
       <button class="btn btn-primary btn-full" onclick="loadDemoData()" style="margin-bottom:10px;font-size:16px;padding:16px">
         🎮 加载演示数据，立刻体验
       </button>
-      <button class="btn btn-secondary btn-full" onclick="goSetup('carPool')" style="font-size:14px">
+      <button class="btn btn-secondary btn-full" onclick="skipOnboarding()" style="font-size:14px">
         ✏️ 手动录入，开始新赛事
       </button>
     </div>`;
@@ -776,6 +777,11 @@ function clearFin() { S.finalResults=[]; save(); render(); }
 function newRace() {
   if(!confirm('开始新的一场比赛？当前数据将清空（历史已保存）。')) return;
   S=freshState(); save(); render();
+}
+
+function skipOnboarding() {
+  S.onboardingDone = true;
+  save(); goSetup('carPool');
 }
 
 function loadDemoData() {
