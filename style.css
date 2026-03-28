@@ -1,0 +1,203 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090f;--bg2:#11111d;--bg3:#1a1a2a;
+  --card:#13131f;--border:#242436;--border2:#303048;
+  --gold:#f5c518;--gold-dim:rgba(245,197,24,0.1);
+  --teal:#2ec4b6;--teal-dim:rgba(46,196,182,0.1);
+  --green:#06d6a0;--green-dim:rgba(6,214,160,0.1);
+  --red:#e63946;--silver:#C0C0C0;--bronze:#CD7F32;
+  --text:#e2e2ee;--text2:#7a7a98;--text3:#3e3e58;
+  --r:10px;
+}
+body{
+  font-family:'Noto Sans SC',sans-serif;
+  background:var(--bg);color:var(--text);
+  max-width:480px;margin:0 auto;
+  min-height:100vh;padding-bottom:68px;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ── HEADER ── */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:50}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{font-size:24px}
+.logo-text{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--gold);letter-spacing:1px}
+.logo-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.header-row{display:flex;align-items:center;justify-content:space-between}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;
+  background:var(--bg2);border-top:1px solid var(--border);
+  display:flex;z-index:100;height:62px;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;font-size:10px;color:var(--text3);
+  cursor:pointer;border:none;background:none;padding:6px 0;
+  transition:color 0.2s;font-family:'Noto Sans SC',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav-btn.active{color:var(--gold)}
+.nav-btn .ni{font-size:22px;line-height:1}
+
+/* ── SUB TABS ── */
+.sub-tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:60px;z-index:40}
+.sub-tab{
+  flex:1;text-align:center;padding:11px 4px;font-size:12px;
+  color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all 0.2s;white-space:nowrap;
+}
+.sub-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.sub-tab.done{color:var(--green)}
+.sub-tab.done::before{content:'✓ '}
+
+/* ── MAIN ── */
+.main{padding:12px 12px 8px}
+.fade-in{animation:fi 0.2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.card-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* ── FORM ── */
+.form-row{display:flex;gap:8px;margin-bottom:10px}
+.input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;color:var(--text);font-family:'Noto Sans SC',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s}
+.input:focus{border-color:var(--gold)}
+.input.sm{flex:none;width:72px}
+
+/* ── BUTTONS ── */
+.btn{padding:12px 18px;border:none;border-radius:8px;font-family:'Noto Sans SC',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:active{opacity:0.85}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-success{background:var(--green);color:#000}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);font-size:13px;padding:7px 11px}
+.btn-danger{background:var(--red);color:#fff}
+.btn-full{width:100%;padding:14px;font-size:15px;border-radius:var(--r)}
+
+/* ── INFO BOX ── */
+.info-box{background:var(--gold-dim);border:1px solid rgba(245,197,24,0.2);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.65}
+.info-box.green{background:var(--green-dim);border-color:rgba(6,214,160,0.2)}
+.info-box.teal{background:var(--teal-dim);border-color:rgba(46,196,182,0.2)}
+.info-box.red{background:rgba(230,57,70,0.08);border-color:rgba(230,57,70,0.25)}
+
+/* ── COUNT BADGE ── */
+.count-badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);margin-bottom:12px}
+.count-num{color:var(--gold);font-weight:700}
+
+/* ── POOL CHIPS ── */
+.pool-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;min-height:32px}
+.car-chip{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--gold);border-radius:8px;padding:7px 12px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--gold)}
+.chip-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;line-height:1}
+.chip-del:active{color:var(--red)}
+
+/* ── DRIVER LIST ── */
+.p-item{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;gap:12px;margin-bottom:7px}
+.driver-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d47800);color:#000;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.p-name{flex:1;font-size:15px;font-weight:500}
+.p-rm{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px;line-height:1}
+.p-rm:active{color:var(--red)}
+
+/* ── CAR NUMBER ── */
+.cn{background:var(--gold);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cn.lg{width:40px;height:40px;font-size:17px}
+.cn.md{width:34px;height:34px;font-size:15px}
+.cn.sm{width:29px;height:29px;font-size:13px;border-radius:5px}
+.cn.xs{width:25px;height:25px;font-size:12px;border-radius:4px}
+
+/* ── GROUP CARDS ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.grp-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:13px}
+.grp-card.a{border-color:rgba(245,197,24,0.3)}
+.grp-card.b{border-color:rgba(46,196,182,0.3)}
+.grp-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.grp-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;padding:2px 10px;border-radius:5px;background:var(--gold);color:#000}
+.grp-tag.b{background:var(--teal);color:#000}
+.grp-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.grp-item:last-child{border-bottom:none;padding-bottom:0}
+
+/* ── RANK SLOTS ── */
+.section-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;margin-top:4px}
+.rank-slots{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.rank-slot{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 12px;min-height:50px;transition:border-color 0.2s}
+.rank-slot.filled{border-color:rgba(245,197,24,0.3)}
+.rn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--text3);width:26px;text-align:center;flex-shrink:0}
+.rn.gold{color:#FFD700}.rn.silver{color:#C0C0C0}.rn.bronze{color:#CD7F32}
+.rank-placeholder{flex:1;font-size:12px;color:var(--text3);font-style:italic}
+.rank-name{flex:1;font-size:14px;font-weight:500}
+.rank-pts{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--gold)}
+.rank-rm{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:4px;line-height:1}
+
+/* ── DRIVER CHIPS ── */
+.driver-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.driver-chip{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 13px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text);font-family:'Noto Sans SC',sans-serif;transition:border-color 0.15s;-webkit-tap-highlight-color:transparent}
+.driver-chip:active{border-color:var(--gold);background:var(--gold-dim)}
+
+/* ── SWAP / RACE2 ── */
+.swap-row{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.swap-rank{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:var(--gold);width:26px;text-align:center;flex-shrink:0}
+.swap-info{flex:1}
+.swap-name{font-size:14px;font-weight:500}
+.swap-detail{font-size:11px;color:var(--text3);margin-top:1px}
+.swap-arr{color:var(--gold);font-size:16px;flex-shrink:0}
+.new-car{background:var(--bg2);border:1px solid var(--gold);border-radius:6px;padding:4px 10px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--gold)}
+.keep-car{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--text3)}
+
+/* ── SCORES ── */
+.score-row{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.score-row.qualified{border-color:rgba(6,214,160,0.3);background:var(--green-dim)}
+.q-badge{font-size:11px;color:var(--green);border:1px solid rgba(6,214,160,0.3);border-radius:10px;padding:1px 7px;white-space:nowrap}
+.score-pts{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold)}
+.score-breakdown{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* ── FINAL GRID ── */
+.grid-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);margin-bottom:8px;position:relative;overflow:hidden}
+.grid-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.grid-item.p1{border-color:rgba(255,215,0,0.3)}.grid-item.p1::before{background:#FFD700}
+.grid-item.p2::before{background:#C0C0C0}
+.grid-item.p3::before{background:#CD7F32}
+.grid-item.p4::before,.grid-item.p5::before{background:var(--border2)}
+.grid-pos{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;color:var(--text3);width:28px;text-align:center;flex-shrink:0}
+.grid-pos.gold{color:#FFD700}.grid-pos.silver{color:#C0C0C0}.grid-pos.bronze{color:#CD7F32}
+.grid-info{flex:1}
+.grid-name{font-size:15px;font-weight:600}
+.grid-sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* ── PRIZE ── */
+.prize-item{display:flex;align-items:center;gap:14px;padding:15px;border-radius:var(--r);margin-bottom:10px;border:1px solid var(--border)}
+.prize-item.gd{background:rgba(255,215,0,0.06);border-color:rgba(255,215,0,0.3)}
+.prize-item.sv{background:rgba(192,192,192,0.05);border-color:rgba(192,192,192,0.2)}
+.prize-item.br{background:rgba(205,127,50,0.05);border-color:rgba(205,127,50,0.2)}
+.prize-medal{font-size:36px;flex-shrink:0}
+.prize-name{font-size:16px;font-weight:700}
+.prize-award{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* ── SETUP STEPS ── */
+.setup-steps{display:flex;background:var(--bg2);border-bottom:1px solid var(--border)}
+.setup-step{flex:1;text-align:center;padding:10px 4px;font-size:11px;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s}
+.setup-step.active{color:var(--gold);border-bottom-color:var(--gold)}
+.setup-step.done{color:var(--green)}
+
+/* ── QUALIFY TIME INPUT ── */
+.qual-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.qual-time-input{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;width:100px;outline:none;text-align:center}
+.qual-time-input:focus{border-color:var(--gold)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:14px;z-index:9999;opacity:0;transition:all 0.25s;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+.toast.info{border-color:var(--gold);color:var(--gold)}
+
+/* ── MISC ── */
+.empty-state{text-align:center;padding:30px 20px;color:var(--text3);font-size:14px}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.tag{display:inline-flex;align-items:center;font-size:11px;border-radius:10px;padding:2px 8px;border:1px solid}
+.tag-a{color:var(--gold);border-color:rgba(245,197,24,0.3);background:var(--gold-dim)}
+.tag-b{color:var(--teal);border-color:rgba(46,196,182,0.3);background:var(--teal-dim)}
