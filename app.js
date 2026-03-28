@@ -845,3 +845,29 @@ function toast(msg,type='info') {
 // ── INIT ──
 load();
 render();
+
+// 禁用右键菜单
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// 禁用双击缩放
+(function() {
+  let lastTap = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTap < 300) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
+})();
+
+// 禁用多指手势缩放
+document.addEventListener('touchmove', e => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
+// 让输入框正常可选中文字
+document.addEventListener('focusin', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    e.target.style.userSelect = 'text';
+    e.target.style.webkitUserSelect = 'text';
+  }
+});

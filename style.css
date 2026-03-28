@@ -15,6 +15,11 @@ body{
   max-width:480px;margin:0 auto;
   min-height:100vh;padding-bottom:68px;
   -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+  user-select:none;
+  touch-action:pan-y;
+  overscroll-behavior:none;
 }
 
 /* ── HEADER ── */
@@ -65,7 +70,8 @@ body{
 
 /* ── FORM ── */
 .form-row{display:flex;gap:8px;margin-bottom:10px}
-.input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;color:var(--text);font-family:'Noto Sans SC',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s}
+.form-row .btn{flex-shrink:0;white-space:nowrap}
+.input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 13px;color:var(--text);font-family:'Noto Sans SC',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;-webkit-user-select:text;user-select:text}
 .input:focus{border-color:var(--gold)}
 .input.sm{flex:none;width:72px}
 
