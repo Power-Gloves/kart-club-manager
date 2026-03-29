@@ -416,7 +416,7 @@ function buildRaceEntry(g, round) {
         ${d ? `
           <div class="cn sm">${esc(c)}</div>
           <div class="rank-name">${esc(d.name)}</div>
-          <div class="rank-pts">+${pts(i+1,n)}</div>
+          <div class="rank-pts">+${pts(i+1,n)}<span style="font-size:11px;font-weight:400;margin-left:1px">分</span></div>
           <button class="rank-rm" onclick="${unsetFn}('${g}',${i})">✕</button>
         ` : `<div class="rank-placeholder">点击录入完赛顺序…</div>`}
       </div>`;
@@ -456,7 +456,10 @@ function buildRaceEntry(g, round) {
           <div class="score-breakdown" style="text-align:right">
             <span style="color:var(--text3)">${s1}+${s2}</span>
           </div>
-          <div class="score-pts" style="font-size:18px;margin-left:8px">${total||'-'}</div>
+          <div style="text-align:right;margin-left:8px">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--gold);line-height:1">${total||'-'}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px">积分</div>
+          </div>
         </div>`;
     }).join('');
   })();
@@ -472,13 +475,13 @@ function buildRaceEntry(g, round) {
       ${results.length>0?`<button class="btn btn-secondary btn-full" onclick="${clearFn}('${g}')" style="margin-bottom:8px">🔄 重新录入</button>`:''}
       ${results.length===n?doneAction:''}
     </div>
-    ${results.length>0?`
     <div class="card" style="border-color:rgba(245,197,24,0.15)">
-      <div class="card-title" style="font-size:14px;margin-bottom:10px;color:var(--text2)">
-        📊 实时积分（预赛1+预赛2）
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="card-title" style="font-size:14px;margin-bottom:0;color:var(--text2)">📊 当前积分榜</div>
+        <div style="font-size:11px;color:var(--text3)">预赛1 + 预赛2</div>
       </div>
       ${miniScores}
-    </div>`:''}`;
+    </div>`;
 
 }
 
@@ -536,7 +539,10 @@ function buildScores(g) {
           <div style="font-size:14px;font-weight:500">${esc(d?.name)}</div>
           <div class="score-breakdown">预赛1: ${s1} &nbsp;预赛2: ${s2}</div>
         </div>
-        <div class="score-pts">${sc[id]||0}</div>
+        <div style="text-align:right">
+          <div class="score-pts">${sc[id]||0}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:1px">积分</div>
+        </div>
       </div>`;
   }).join('');
 
