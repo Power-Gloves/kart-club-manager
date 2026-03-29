@@ -184,44 +184,40 @@ function buildSetupPage() {
   return stepBar + `<div class="main fade-in">${content}</div>`;
 }
 
-// 引导欢迎页
+// 引导欢迎页（紧凑版）
 function buildOnboarding() {
   const steps = [
-    {icon:'🚗', title:'建立车号池', desc:'录入本场可用车辆编号'},
-    {icon:'📝', title:'车手报名',   desc:'填写姓名，系统随机分组抽车'},
-    {icon:'🎲', title:'随机分组',   desc:'自动均分 A/B 组 + 随机抽车'},
-    {icon:'⏱', title:'排位赛',     desc:'最快圈决定预赛发车顺序（不计分）'},
-    {icon:'🏁', title:'预赛 × 2轮', desc:'A组/B组各跑两轮，首尾换车保公平'},
-    {icon:'🏆', title:'决赛',       desc:'各组取 3-5 人，共 6-10 人冲刺决赛'},
+    {icon:'🚗', title:'车号池'},
+    {icon:'📝', title:'车手报名'},
+    {icon:'🎲', title:'随机分组'},
+    {icon:'⏱',  title:'排位赛'},
+    {icon:'🏁', title:'预赛×2轮'},
+    {icon:'🏆', title:'决赛'},
   ];
   return `
-    <div style="padding:16px 4px 0">
-      <div style="text-align:center;padding:20px 0 16px">
-        <div style="font-size:52px;margin-bottom:10px">🏎️</div>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--gold);letter-spacing:1px">KART CLUB MANAGER</div>
-        <div style="font-size:13px;color:var(--text2);margin-top:4px">卡丁车俱乐部 · 赛事计分系统</div>
+    <div style="padding:10px 4px 0">
+      <div style="text-align:center;padding:12px 0 10px">
+        <div style="font-size:38px;line-height:1">🏎️</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;color:var(--gold);letter-spacing:1px;margin-top:6px">KART CLUB MANAGER</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">卡丁车俱乐部 · 赛事计分系统</div>
       </div>
 
-      <div class="card" style="margin-bottom:12px">
-        <div class="card-title" style="font-size:14px;margin-bottom:12px">📋 比赛流程</div>
-        ${steps.map((s,i) => `
-          <div style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;${i<steps.length-1?'border-bottom:1px solid var(--border)':''}">
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${s.icon}</div>
-            <div>
-              <div style="font-size:14px;font-weight:600">${s.title}</div>
-              <div style="font-size:12px;color:var(--text2);margin-top:2px">${s.desc}</div>
-            </div>
-          </div>`).join('')}
+      <div class="card" style="margin-bottom:10px;padding:12px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px">比赛流程</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${steps.map((s,i) => `
+            <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:8px 10px">
+              <span style="font-size:18px;line-height:1">${s.icon}</span>
+              <span style="font-size:13px;font-weight:500">${s.title}</span>
+              <span style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;color:var(--text3);margin-left:auto">${i+1}</span>
+            </div>`).join('')}
+        </div>
       </div>
 
-      <div class="info-box teal" style="margin-bottom:12px">
-        💡 <strong>建议先用演示数据体验一遍</strong>，了解完整流程后再正式开赛
-      </div>
-
-      <button class="btn btn-primary btn-full" onclick="loadDemoData()" style="margin-bottom:10px;font-size:16px;padding:16px">
+      <button class="btn btn-primary btn-full" onclick="loadDemoData()" style="margin-bottom:8px;font-size:15px;padding:14px">
         🎮 加载演示数据，立刻体验
       </button>
-      <button class="btn btn-secondary btn-full" onclick="skipOnboarding()" style="font-size:14px">
+      <button class="btn btn-secondary btn-full" onclick="skipOnboarding()" style="font-size:14px;padding:12px">
         ✏️ 手动录入，开始新赛事
       </button>
     </div>`;
