@@ -176,6 +176,7 @@ function buildHeader() {
         </div>
         <div style="display:flex;gap:6px">
           ${IS_SERVER?`<button class="btn btn-ghost" onclick="showHistory()" style="padding:7px 10px;font-size:13px">📜 历史</button>`:''}
+          ${IS_SERVER?`<button class="btn btn-ghost" onclick="window.open('/viewer','_blank')" style="padding:7px 10px;font-size:13px" title="观众端看板">📺</button>`:''}
           <button class="btn btn-ghost" onclick="newRace()">＋ 新赛事</button>
         </div>
       </div>

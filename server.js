@@ -141,6 +141,11 @@ app.get('/api/ping', (req, res) => {
   });
 });
 
+// 观众端（车手实时看板）
+app.get('/viewer', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'viewer.html'));
+});
+
 // ── WebSocket ──
 io.on('connection', (socket) => {
   console.log(`[WS] 设备连接 ${socket.id} 共${io.engine.clientsCount}台`);

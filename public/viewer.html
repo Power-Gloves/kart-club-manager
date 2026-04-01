@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#09090f">
+  <title>卡丁车大赛 · 实时看板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#09090f;--bg2:#11111d;--bg3:#1a1a2a;
+      --card:#13131f;--border:#242436;--border2:#303048;
+      --gold:#f5c518;--gold-dim:rgba(245,197,24,0.1);
+      --teal:#2ec4b6;--teal-dim:rgba(46,196,182,0.1);
+      --green:#06d6a0;--red:#e63946;
+      --text:#e2e2ee;--text2:#7a7a98;--text3:#3e3e58;
+      --r:12px;
+    }
+    body{
+      font-family:'Noto Sans SC',sans-serif;
+      background:var(--bg);color:var(--text);
+      max-width:480px;margin:0 auto;min-height:100vh;
+      -webkit-tap-highlight-color:transparent;
+      user-select:none;
+    }
+    #app{min-height:100vh}
+
+    /* ── header ── */
+    .vh{background:var(--bg2);border-bottom:1px solid var(--border);
+        padding:12px 16px;position:sticky;top:0;z-index:50;
+        display:flex;align-items:center;justify-content:space-between}
+    .vlogo{display:flex;align-items:center;gap:10px}
+    .vlogo-icon{font-size:22px}
+    .vlogo-text{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--gold);letter-spacing:1px}
+    .vlogo-sub{font-size:11px;color:var(--text2);margin-top:1px}
+    .live-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green)}
+    .live-dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--green);
+      animation:pulse 1.4s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(0.85)}}
+
+    /* ── phase banner ── */
+    .phase-banner{
+      margin:16px 16px 0;
+      background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+      padding:20px 16px;text-align:center;
+    }
+    .phase-emoji{font-size:40px;margin-bottom:8px}
+    .phase-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--gold);letter-spacing:1px}
+    .phase-sub{font-size:13px;color:var(--text2);margin-top:4px}
+
+    /* ── cards ── */
+    .vc{padding:12px 16px 24px}
+    .vcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
+    .vcard-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:var(--gold);
+                  margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:.5px;text-transform:uppercase}
+
+    /* ── score rows ── */
+    .vrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .vrow:last-child{border-bottom:none;padding-bottom:0}
+    .vpos{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;width:24px;text-align:center;flex-shrink:0}
+    .vpos.p1{color:#FFD700}.vpos.p2{color:#C0C0C0}.vpos.p3{color:#CD7F32}.vpos.px{color:var(--text3)}
+    .vcar{background:var(--gold);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;
+          font-size:12px;border-radius:5px;padding:3px 7px;flex-shrink:0}
+    .vname{flex:1;font-size:14px;font-weight:500}
+    .vpts{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--gold)}
+    .vpts-detail{font-size:11px;color:var(--text3)}
+    .vq{background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.3);border-radius:8px;
+        font-size:11px;color:var(--green);padding:2px 7px;flex-shrink:0}
+    .vtag{font-size:11px;border-radius:10px;padding:2px 8px;border:1px solid;flex-shrink:0}
+    .vtag-a{color:var(--gold);border-color:rgba(245,197,24,0.3);background:rgba(245,197,24,0.06)}
+    .vtag-b{color:var(--teal);border-color:rgba(46,196,182,0.3);background:rgba(46,196,182,0.06)}
+
+    /* ── driver chip (registration) ── */
+    .driver-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .dchip{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+           padding:10px 12px;display:flex;align-items:center;gap:8px}
+    .dav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d47800);
+         color:#000;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .dname{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* ── podium ── */
+    .podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:16px 0;margin-bottom:12px}
+    .podium-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .podium-medal{font-size:32px}
+    .podium-name{font-weight:700;font-size:13px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .podium-car{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;
+                background:var(--gold);color:#000;border-radius:4px;padding:1px 6px}
+    .podium-block{width:72px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;
+                  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:24px;color:#000}
+    .podium-block.p1{background:linear-gradient(180deg,#FFD700,#e6b800);height:70px}
+    .podium-block.p2{background:linear-gradient(180deg,#C0C0C0,#a8a8a8);height:50px}
+    .podium-block.p3{background:linear-gradient(180deg,#CD7F32,#b56b24);height:36px}
+
+    /* ── waiting screen ── */
+    .wait-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;
+                 min-height:70vh;text-align:center;padding:24px}
+    .wait-logo{font-size:64px;animation:hover 3s ease-in-out infinite}
+    @keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    .wait-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:28px;
+                color:var(--gold);letter-spacing:2px;margin:16px 0 8px}
+    .wait-sub{font-size:14px;color:var(--text2);line-height:1.7}
+    .wait-count{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;
+                color:var(--gold);margin:12px 0}
+
+    /* ── fade-in ── */
+    .fade-in{animation:fi 0.3s ease}
+    @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:var(--text2)">
+      <div style="font-size:36px;margin-bottom:12px">🏎️</div>
+      <div style="font-size:14px">连接中...</div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/viewer.js"></script>
+</body>
+</html>
