@@ -141,38 +141,24 @@ function assignCars(ids) {
 }
 
 // ── Render ──
-// Zone 分区渲染——防止全页闪屏
-let _zoneReady = false, _lastRenderedTab = null;
-
 function render() {
-  const app = document.getElementById('app');
-
-  // 初始化三个区域（只执行一次）
-  if (!_zoneReady) {
-    app.innerHTML = '<div id="_zh"></div><div id="_zb"></div><div id="_zn"></div>';
-    _zoneReady = true;
-  }
-
-  // Header 和 BottomNav ：只在 Tab 切换时更新（避免 emoji 重绘闪屏）
-  if (S.tab !== _lastRenderedTab) {
-    document.getElementById('_zh').innerHTML = buildHeader();
-    document.getElementById('_zn').innerHTML = buildBottomNav();
-    _lastRenderedTab = S.tab;
-  }
-
-  // Body ：每次更新（范围小、不含 Header/Nav）
-  document.getElementById('_zb').innerHTML = buildBody();
+  document.getElementById('app').innerHTML = buildApp();
   bindEvents();
 }
 
-function buildBody() {
+function buildApp() {
   const pages = {
     setup:  buildSetupPage(),
     groupA: buildGroupPage('A'),
     groupB: buildGroupPage('B'),
-    final:  `<div class="main fade-in">${buildFinalPage()}</div>`
+    final:  buildFinalPage()
   };
-  return pages[S.tab] || pages.setup;
+  const content = pages[S.tab] || pages.setup;
+  return `
+    ${buildHeader()}
+    <div class="main fade-in">${content}</div>
+    ${buildBottomNav()}
+  `;
 }
 
 // ── Header ──
@@ -217,7 +203,7 @@ function buildBottomNav() {
 function buildSetupPage() {
   // 首次进入 · 无任何数据且未跳过引导时展示引导页
   if (S.carPool.length === 0 && S.drivers.length === 0 && !S.onboardingDone) {
-    return `<div class="main fade-in">${buildOnboarding()}</div>`;
+    return buildOnboarding();
   }
 
   const steps = [
