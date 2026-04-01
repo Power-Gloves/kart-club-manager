@@ -713,15 +713,7 @@ function buildFinalPage() {
 // ── RESULTS ──
 function buildResults(allFin, getCarFin, getGrp, getScFin) {
   const r = S.finalResults;
-  // 保存到服务器历史（只在本地操作时触发，避免重复）
-  if (!_remoteUpdate && IS_SERVER && !S._historySaved) {
-    S._historySaved = true;
-    if (_socket?.connected) {
-      _socket.emit('save_history', S);
-    } else {
-      fetch('/api/history', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:S})}).catch(()=>{});
-    }
-  }
+  // 不再自动保存，由用户点击按鈕手动保存
   const prizes = [
     {medal:'🥇',cls:'gd',award:'储值卡 888元 + 纪念奖杯 🏆'},
     {medal:'🥈',cls:'sv',award:'储值卡 666元 + 纪念奖杯 🏆'},
@@ -756,6 +748,10 @@ function buildResults(allFin, getCarFin, getGrp, getScFin) {
       ${podium}
     </div>
     <div class="card"><div class="card-title" style="font-size:15px;margin-bottom:10px">完整顺序</div>${full}</div>
+    ${IS_SERVER ? `
+    <button class="btn btn-success btn-full" onclick="saveRaceResult()" style="margin-bottom:10px">
+      💾 保存比赛记录
+    </button>` : ''}
     <button class="btn btn-secondary btn-full" onclick="newRace()">＋ 开始新一场比赛</button>`;
 }
 
@@ -897,6 +893,25 @@ function toast(msg,type='info') {
 }
 
 // ── 历史记录 ──
+
+// 手动保存比赛结果
+function saveRaceResult() {
+  if (!IS_SERVER) return;
+  if (_socket) _socket.emit('save_history', S);
+  else fetch('/api/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:S})}).catch(()=>{});
+  toast('✓ 比赛记录已保存','success');
+}
+
+// 删除历史记录
+async function deleteHistory(id) {
+  try {
+    await fetch(`/api/history/${id}`, { method: 'DELETE' });
+    toast('✓ 记录已删除','info');
+    showHistory(); // 刷新列表
+  } catch(e) { toast('删除失败','error'); }
+}
+
+// 历史列表
 async function showHistory() {
   try {
     const res = await fetch('/api/history');
@@ -904,18 +919,26 @@ async function showHistory() {
     const rows = history.length === 0
       ? '<div style="text-align:center;padding:24px;color:var(--text3)">暂无历史记录</div>'
       : history.map(h => `
-        <div onclick="showHistoryDetail(${h.id})" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:border-color 0.15s" onmouseenter="this.style.borderColor='var(--gold)'" onmouseleave="this.style.borderColor='var(--border)'">
-          <div style="font-size:24px">🏎️</div>
-          <div style="flex:1">
-            <div style="font-weight:600;font-size:14px">${esc(h.race_date)}</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:2px">🥇 ${esc(h.winner)} &nbsp;·&nbsp; ${h.driver_count}人参赛</div>
+        <div style="overflow:hidden;border-radius:8px;margin-bottom:8px">
+          <div class="hist-swipe" data-id="${h.id}" style="display:flex;will-change:transform;transition:transform 0.2s">
+            <div onclick="showHistoryDetail(${h.id})" style="flex-shrink:0;width:100%;display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);cursor:pointer">
+              <div style="font-size:22px">🏎️</div>
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:14px">${esc(h.race_date)}</div>
+                <div style="font-size:12px;color:var(--text2);margin-top:2px">🥇 ${esc(h.winner)} &nbsp;·&nbsp; ${h.driver_count}人参赛</div>
+              </div>
+              <div style="color:var(--text3);font-size:16px;flex-shrink:0">›</div>
+            </div>
+            <div onclick="deleteHistory(${h.id})" style="flex-shrink:0;width:72px;background:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:#fff;font-size:20px">
+              🗑️<span style="font-size:11px">删除</span>
+            </div>
           </div>
-          <div style="color:var(--text3);font-size:16px">›</div>
         </div>`).join('');
-    _showOverlay('📜 历史赛事', rows);
-  } catch(e) { toast('加载历史失败', 'error'); }
+    _showOverlay('📜 历史赛事', rows, true);
+  } catch(e) { toast('加载历史失败','error'); }
 }
 
+// 历史详情
 async function showHistoryDetail(id) {
   try {
     const res = await fetch(`/api/history/${id}`);
@@ -936,10 +959,11 @@ async function showHistoryDetail(id) {
       <div style="font-family:'Rajdhani',sans-serif;font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:8px">决赛结果</div>
       ${rows || '<div style="color:var(--text3);font-size:13px">无决赛数据</div>'}
     `);
-  } catch(e) { toast('加载详情失败', 'error'); }
+  } catch(e) { toast('加载详情失败','error'); }
 }
 
-function _showOverlay(title, content) {
+// 通用 Overlay 弹框
+function _showOverlay(title, content, bindSwipe) {
   document.querySelectorAll('.history-overlay').forEach(el => el.remove());
   const overlay = document.createElement('div');
   overlay.className = 'history-overlay';
@@ -954,6 +978,34 @@ function _showOverlay(title, content) {
     </div>`;
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
+  if (bindSwipe) requestAnimationFrame(_bindSwipeDelete);
+}
+
+// 滑动删除 touch 事件
+function _bindSwipeDelete() {
+  document.querySelectorAll('.hist-swipe').forEach(el => {
+    let sx = 0, sy = 0, moved = false, open = false;
+    el.addEventListener('touchstart', e => {
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false;
+      el.style.transition = 'none';
+    }, { passive: true });
+    el.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - sx;
+      const dy = e.touches[0].clientY - sy;
+      if (!moved && Math.abs(dy) > Math.abs(dx)) return;
+      moved = true;
+      const base = open ? -72 : 0;
+      const x = Math.min(0, Math.max(base + dx, -72));
+      el.style.transform = `translateX(${x}px)`;
+    }, { passive: true });
+    el.addEventListener('touchend', e => {
+      el.style.transition = 'transform 0.2s';
+      const dx = e.changedTouches[0].clientX - sx;
+      if (!open && dx < -36) { el.style.transform = 'translateX(-72px)'; open = true; }
+      else if (open && dx > 20) { el.style.transform = ''; open = false; }
+      else { el.style.transform = open ? 'translateX(-72px)' : ''; }
+    });
+  });
 }
 
 // ── INIT ──

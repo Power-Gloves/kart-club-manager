@@ -117,6 +117,12 @@ app.get('/api/history/:id', (req, res) => {
   res.json({ ok: true, race: row });
 });
 
+// 删除历史记录
+app.delete('/api/history/:id', (req, res) => {
+  db.prepare('DELETE FROM race_history WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
 // 新赛事（清空当前状态）
 app.post('/api/reset', (req, res) => {
   setState({});
