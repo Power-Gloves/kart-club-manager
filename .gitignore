@@ -9,3 +9,13 @@ desktop.ini
 
 # 日志
 *.log
+
+# 数据库（不提交到 git）
+data/
+*.db
+
+# Node 依赖
+node_modules/
+
+# PM2 日志
+.pm2/

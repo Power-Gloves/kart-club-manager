@@ -1,0 +1,15 @@
+{
+  "name": "kart-club-manager",
+  "version": "2.0.0",
+  "description": "卡丁车俱乐部赛事计分系统 - 实时多设备版",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "express": "^4.18.3",
+    "socket.io": "^4.7.4"
+  }
+}
