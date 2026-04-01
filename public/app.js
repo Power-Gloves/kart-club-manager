@@ -39,6 +39,8 @@ const IS_SERVER = window.location.hostname !== '127.0.0.1' && window.location.ho
 
 // Socket.io 实时同步
 let _socket = null;
+let _remoteUpdate = false; // 标志：当前是否是远程推送的更新（防止循环）
+
 function initSocket() {
   if (!IS_SERVER) return;
   try {
@@ -47,8 +49,10 @@ function initSocket() {
     _socket.on('disconnect', () => { toast('⚠️ 同步断开，请检查网络', 'error'); });
     _socket.on('state_update', (newState) => {
       if (newState && Object.keys(newState).length > 0) {
+        _remoteUpdate = true;  // 标记：这是来自服务器的推送，save时不要再POST
         S = newState;
         render();
+        _remoteUpdate = false;
       }
     });
   } catch(e) { console.warn('Socket.io 初始化失败，降级本地模式'); }
@@ -69,8 +73,8 @@ async function load() {
 function save() {
   // 始终展存 LocalStorage 作为备份
   try { localStorage.setItem('kart_v2', JSON.stringify(S)); } catch(e) {}
-  // 如果是后端模式就同步到服务器
-  if (IS_SERVER) {
+  // 远程推送触发的 render 不回传，防止无限循环
+  if (IS_SERVER && !_remoteUpdate) {
     fetch('/api/state', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -346,7 +350,7 @@ function buildGroupPage(g) {
 
   const subTabs = `
     <div class="sub-tabs">
-      ${[['qualify','排位'],['race1','预赛1'],['race2','预赛2'],['scores','积分']].map(([k,label]) => {
+      ${[['qualify','⏱ 排位'],['race1','🏁 预赛1'],['race2','🔄 预赛2'],['scores','📊 积分']].map(([k,label]) => {
         let cls = sub===k ? 'active' : '';
         if ((k==='race1'&&r1Done)||(k==='race2'&&r2Done)||(k==='qualify'&&qualOrder(g).length>0)) cls += ' done';
         return `<div class="sub-tab ${cls}" onclick="goSub('${g}','${k}')">${label}</div>`;
@@ -616,7 +620,10 @@ function buildFinalPage() {
     return sb-sa;
   });
 
-  if (!S.finalOrder.length) { S.finalOrder = allFin; save(); }
+  if (!S.finalOrder.length) {
+    S.finalOrder = allFin;
+    if (!_remoteUpdate) save(); // render内只在本地操作时保存，远程推送不回传
+  }
 
   const getCarFin = id => finA.includes(id)?S.carAssignA[id]:S.carAssignB[id];
   const getGrp    = id => finA.includes(id)?'A':'B';
