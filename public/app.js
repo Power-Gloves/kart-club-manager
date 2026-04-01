@@ -938,27 +938,76 @@ async function showHistory() {
   } catch(e) { toast('加载历史失败','error'); }
 }
 
-// 历史详情
+// 历史详情（完整版）
 async function showHistoryDetail(id) {
   try {
     const res = await fetch(`/api/history/${id}`);
     const { race } = await res.json();
     const d = race.data;
-    const finalists = d.finalResults || [];
-    const rows = finalists.map((pid, i) => {
-      const driver = d.drivers?.find(x => x.id === pid);
-      const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'&nbsp;';
-      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
-        <div style="width:24px;text-align:center;font-size:15px">${medal}</div>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--text3)">${i+1}</div>
+
+    const getDriver = pid => d.drivers?.find(x => x.id === pid);
+    const ptsCalc  = (pos, n) => Math.max(n - pos + 1, 1);
+    const inA      = pid => (d.groupA || []).includes(pid);
+    const carOf    = pid => inA(pid) ? d.carAssignA?.[pid] : d.carAssignB?.[pid];
+    const grpOf    = pid => inA(pid) ? 'A' : 'B';
+
+    // ── 决赛名次 ──
+    const finalRows = (d.finalResults || []).map((pid, i) => {
+      const driver = getDriver(pid);
+      const car = carOf(pid), grp = grpOf(pid);
+      const medal = ['🥇','🥈','🥉'][i] || '';
+      const numColor = i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--text3)';
+      const grpStyle = grp==='A'
+        ? 'color:var(--gold);border:1px solid rgba(245,197,24,0.3);background:rgba(245,197,24,0.08)'
+        : 'color:var(--teal);border:1px solid rgba(46,196,182,0.3);background:rgba(46,196,182,0.08)';
+      return `<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)">
+        <div style="width:20px;text-align:center;font-size:14px">${medal}</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:${numColor};width:18px;text-align:center">${i+1}</div>
+        ${car?`<div style="background:var(--gold);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;border-radius:4px;padding:2px 6px;flex-shrink:0">${esc(car)}</div>`:''}
         <div style="flex:1;font-size:14px;font-weight:500">${esc(driver?.name||'?')}</div>
+        <div style="font-size:11px;border-radius:10px;padding:2px 8px;${grpStyle}">${grp}组</div>
       </div>`;
     }).join('');
-    _showOverlay(`🏎️ ${race.race_date}`, `
-      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${race.driver_count}人参赛 &nbsp;·&nbsp; 🥇 冠军：${esc(race.winner)}</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:8px">决赛结果</div>
-      ${rows || '<div style="color:var(--text3);font-size:13px">无决赛数据</div>'}
-    `);
+
+    // ── 预赛积分（通用） ──
+    const groupScoreBlock = (ids, r1, r2, ca, label, color) => {
+      if (!ids?.length) return '';
+      const n = ids.length;
+      const rows = ids.map(pid => {
+        const s1 = r1.includes(pid) ? ptsCalc(r1.indexOf(pid)+1, n) : 0;
+        const s2 = r2.includes(pid) ? ptsCalc(r2.indexOf(pid)+1, n) : 0;
+        return { pid, s1, s2, total: s1+s2, car: ca?.[pid], driver: getDriver(pid) };
+      }).sort((a,b) => b.total - a.total);
+
+      const rowsHtml = rows.map((item, i) => {
+        const numColor = i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'var(--text3)';
+        return `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:${numColor};width:18px;text-align:center">${i+1}</div>
+          ${item.car?`<div style="background:var(--gold);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;border-radius:4px;padding:2px 5px;flex-shrink:0">${esc(item.car)}</div>`:''}
+          <div style="flex:1;font-size:13px;font-weight:500">${esc(item.driver?.name||'?')}</div>
+          <div style="font-size:11px;color:var(--text3)">${item.s1}+${item.s2}</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--gold);min-width:26px;text-align:right">${item.total}</div>
+        </div>`;
+      }).join('');
+
+      return `<div style="font-family:'Rajdhani',sans-serif;font-size:11px;color:${color};letter-spacing:2px;margin:16px 0 8px;text-transform:uppercase">
+          📊 ${label}组 预赛积分
+        </div>${rowsHtml}`;
+    };
+
+    const aBlock = groupScoreBlock(d.groupA, d.aRace1||[], d.aRace2||[], d.carAssignA, 'A', 'var(--gold)');
+    const bBlock = groupScoreBlock(d.groupB, d.bRace1||[], d.bRace2||[], d.carAssignB, 'B', 'var(--teal)');
+
+    const content = `
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">
+        ${race.driver_count}人参赛 &nbsp;·&nbsp; 🥇 冠军：<strong>${esc(race.winner)}</strong>
+      </div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;color:var(--text3);letter-spacing:2px;margin-bottom:8px">🏆 决赛完整名次</div>
+      ${finalRows || '<div style="color:var(--text3);font-size:13px">无决赛数据</div>'}
+      ${aBlock}
+      ${bBlock}
+    `;
+    _showOverlay(`🏎️ ${race.race_date}`, content);
   } catch(e) { toast('加载详情失败','error'); }
 }
 
