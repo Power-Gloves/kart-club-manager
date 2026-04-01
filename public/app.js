@@ -71,15 +71,13 @@ async function load() {
 }
 
 function save() {
-  // 始终展存 LocalStorage 作为备份
   try { localStorage.setItem('kart_v2', JSON.stringify(S)); } catch(e) {}
-  // 远程推送触发的 render 不回传，防止无限循环
-  if (IS_SERVER && !_remoteUpdate) {
-    fetch('/api/state', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state: S })
-    }).catch(() => {});
+  if (!IS_SERVER) return;
+  if (_socket?.connected) {
+    _socket.emit('save_state', S); // 服务器只广播给其他设备，不回传给自己
+  } else {
+    // fallback: Socket 未连接时用 REST
+    fetch('/api/state', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:S})}).catch(()=>{});
   }
 }
 
@@ -179,7 +177,10 @@ function buildHeader() {
             <div class="logo-sub">${titles[S.tab]||''}</div>
           </div>
         </div>
-        <button class="btn btn-ghost" onclick="newRace()">＋ 新赛事</button>
+        <div style="display:flex;gap:6px">
+          ${IS_SERVER?`<button class="btn btn-ghost" onclick="showHistory()" style="padding:7px 10px;font-size:13px">📜 历史</button>`:''}
+          <button class="btn btn-ghost" onclick="newRace()">＋ 新赛事</button>
+        </div>
       </div>
     </div>`;
 }
@@ -715,12 +716,20 @@ function buildFinalPage() {
 // ── RESULTS ──
 function buildResults(allFin, getCarFin, getGrp, getScFin) {
   const r = S.finalResults;
+  // 保存到服务器历史（只在本地操作时触发，避免重复）
+  if (!_remoteUpdate && IS_SERVER && !S._historySaved) {
+    S._historySaved = true;
+    if (_socket?.connected) {
+      _socket.emit('save_history', S);
+    } else {
+      fetch('/api/history', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:S})}).catch(()=>{});
+    }
+  }
   const prizes = [
     {medal:'🥇',cls:'gd',award:'储值卡 888元 + 纪念奖杯 🏆'},
     {medal:'🥈',cls:'sv',award:'储值卡 666元 + 纪念奖杯 🏆'},
     {medal:'🥉',cls:'br',award:'储值卡 568元 + 纪念奖杯 🏆'},
   ];
-  saveHistory(r[0]);
   const podium = r.slice(0,3).map((id,i) => {
     const d=getD(id), p=prizes[i];
     return `
@@ -888,6 +897,40 @@ function toast(msg,type='info') {
   const el=document.getElementById('toast');
   el.textContent=msg; el.className=`toast ${type} show`;
   clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+// ── 历史记录 ──
+async function showHistory() {
+  try {
+    const res = await fetch('/api/history');
+    const { history } = await res.json();
+    const rows = history.length === 0
+      ? '<div style="text-align:center;padding:24px;color:var(--text3)">暂无历史记录</div>'
+      : history.map(h => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
+          <div style="font-size:24px">🏎️</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">${esc(h.race_date)}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">🥇 ${esc(h.winner)} &nbsp;·&nbsp; ${h.driver_count}人参赛</div>
+          </div>
+          <div style="font-size:11px;color:var(--text3)">#${h.id}</div>
+        </div>`).join('');
+    // 显示弹窗
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9000;display:flex;align-items:flex-end;justify-content:center';
+    overlay.innerHTML = `
+      <div style="background:var(--bg2);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;padding:20px 16px 32px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;color:var(--gold)">📜 历史赛事</div>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1">✕</button>
+        </div>
+        ${rows}
+      </div>`;
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  } catch(e) {
+    toast('加载历史失败', 'error');
+  }
 }
 
 // ── INIT ──

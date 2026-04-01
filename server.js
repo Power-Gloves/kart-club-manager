@@ -145,6 +145,21 @@ io.on('connection', (socket) => {
     socket.emit('state_update', state);
   }
 
+  // 客户端保存状态 → 只广播给其他设备，不回传给自己
+  socket.on('save_state', (state) => {
+    if (state && typeof state === 'object') {
+      setState(state);
+      socket.broadcast.emit('state_update', state);
+    }
+  });
+
+  // 客户端保存历史记录
+  socket.on('save_history', (state) => {
+    if (state && typeof state === 'object') {
+      try { saveHistory(state); } catch(e) {}
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log(`[WS] 设备断开 ${socket.id}`);
   });
